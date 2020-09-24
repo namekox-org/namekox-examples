@@ -1,0 +1,6 @@
+WEBSERVER:
+  host: 0.0.0.0
+  port: 80
+WEBSOCKET:
+  host: 0.0.0.0
+  port: 8000

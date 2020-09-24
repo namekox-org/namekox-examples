@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>webssh - base on namekox-websocket</title>
+        <link href="/static/css/xterm.min.css" rel="stylesheet" type="text/css"/>
+        <link href="/static/css/fullscreen.min.css" rel="stylesheet" type="text/css"/>
+        <style type="text/css">
+            body {
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+    </body>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/xterm.min.js"></script>
+    <script src="/static/js/addons/fit.min.js"></script>
+    <script src="/static/js/addons/fullscreen.min.js"></script>
+    <script>
+        function get_term_size() {
+            let init_width = 9;
+            let init_height = 17;
+
+            let window_width = $(window).width();
+            let window_height = $(window).height();
+
+            return {
+                width: Math.floor(window_width / init_width),
+                height: Math.floor(window_height / init_height),
+            }
+        }
+        var copy_data = '';
+        let term_size = get_term_size();
+        let query_str = 'height=' + term_size.height + '&width=' + term_size.width;
+        if (location.search === ''){
+            query_str = '?' + query_str;
+        }else{
+            query_str = location.search + '&' + query_str;
+        }
+        let protocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+        let socket = new WebSocket(protocol + window.location.host + ':8000' + '/' + query_str);
+        socket.onopen = function () {
+            Terminal.applyAddon(fit);
+            Terminal.applyAddon(fullscreen);
+            let term = new Terminal({
+                cols: term_size.width,
+                rows: term_size.height,
+                cursorBlink: true,
+                cursorStyle: "underline",
+                scrollback: 800,
+                tabStopWidth: 4,
+                screenKeys: true
+            });
+            term.open(document.body);
+            term.focus();
+            term.fit();
+            term.toggleFullScreen();
+            term.on('data', function (d) {
+                let m = JSON.stringify({
+                    'code': 0,
+                    'data': d
+                });
+                socket.send(m);
+            });
+            term.on('title', function (t) {
+                document.title = t;
+            });
+            term.on("selection", function() {
+                if (term.hasSelection()) {
+                    copy_data = term.getSelection();
+                }
+            });
+            term.attachCustomKeyEventHandler(function(e) {
+                if (e.keyCode == 86 && e.ctrlKey) {
+                    let d = new TextEncoder().encode("\x00" + copy_data);
+                    socket.send(d);
+                }
+            });
+            socket.onmessage = function (m) {
+                let reader = new FileReader();
+                reader.onload = function(){
+                    term.write(reader.result);
+                };
+                reader.readAsText(m.data);
+            };
+            socket.onerror = function (e) {
+                console.log(e);
+            };
+            let windowChange = function (){
+                term.fit();
+                term.scrollToBottom();
+                let term_size = get_term_size();
+                let m = JSON.stringify({
+                    'code': 1,
+                    'data': term_size
+                });
+                socket.send(m);
+                term.resize(term_size.width, term_size.height);
+            };
+            socket.onclose = function (e) {
+                console.log(e);
+                window.removeEventListener('resize', windowChange)
+            };
+            window.onresize = function() {
+                term.fit();
+                term.scrollToBottom();
+            };
+            window.addEventListener('resize', windowChange);
+        };
+    </script>
+</html>
