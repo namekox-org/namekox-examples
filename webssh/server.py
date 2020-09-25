@@ -11,9 +11,7 @@ import json
 from werkzeug import Response
 from logging import getLogger
 from eventlet.websocket import WebSocketWSGI
-from werkzeug.middleware.shared_data import SharedDataMiddleware
-from namekox_webserver.core.entrypoints.app.server import WebServer as BaseWebServer
-from namekox_webserver.core.entrypoints.app.handler import WebServerHandler as BaseWebServerHandler
+from namekox_webserver.core.entrypoints.app.handler import WebServerHandler
 from namekox_websocket.core.entrypoints.app.handler import WebSocketHandler as BaseWebSocketHandler
 
 
@@ -21,18 +19,6 @@ from minissh import MiniSSH
 
 
 logger = getLogger(__name__)
-
-
-class WebServer(BaseWebServer):
-    def get_wsgi_app(self):
-        app = super(WebServer, self).get_wsgi_app()
-        exp = {'/static': os.path.join(os.path.dirname(__file__), 'static')}
-        app = SharedDataMiddleware(app, exp)
-        return app
-
-
-class WebServerHandler(BaseWebServerHandler):
-    server = WebServer()
 
 
 class WebSocketHandler(BaseWebSocketHandler):
@@ -55,11 +41,8 @@ class WebSocketHandler(BaseWebSocketHandler):
                 ssh_instance = self.handle_connect(request, sock_id, ws_sock)
                 self.container.spawn_manage_thread(ssh_instance.forward, args=(ws_sock,))
                 while self.accpted:
-                    try:
-                        data = ws_sock.wait()
-                        resp = json.loads(data)
-                    except Exception:
-                        continue
+                    data = ws_sock.wait()
+                    resp = json.loads(data)
                     code = resp['code']
                     data = resp['data']
                     if code == 0:

@@ -1,9 +1,14 @@
+# Install
+> pip install -r requirements.txt
+
 # Running
 > config.yaml
 ```yaml
 WEBSERVER:
   host: 0.0.0.0
   port: 80
+  middlewares:
+    - middlewares:SharedData
 WEBSOCKET:
   host: 0.0.0.0
   port: 8000

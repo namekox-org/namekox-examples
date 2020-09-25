@@ -1,0 +1,3 @@
+paramiko>=2.7.2
+namekox-webserver>=1.0.0
+namekox-websocket>=1.0.0

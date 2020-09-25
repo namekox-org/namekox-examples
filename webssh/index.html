@@ -17,6 +17,8 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/xterm.min.js"></script>
     <script src="/static/js/addons/fit.min.js"></script>
+    <script src="/static/js/addons/search.min.js"></script>
+    <script src="/static/js/addons/webLinks.min.js"></script>
     <script src="/static/js/addons/fullscreen.min.js"></script>
     <script>
         function get_term_size() {
@@ -43,6 +45,8 @@
         let socket = new WebSocket(protocol + window.location.host + ':8000' + '/' + query_str);
         socket.onopen = function () {
             Terminal.applyAddon(fit);
+            Terminal.applyAddon(search);
+            Terminal.applyAddon(webLinks);
             Terminal.applyAddon(fullscreen);
             let term = new Terminal({
                 cols: term_size.width,
@@ -81,6 +85,7 @@
             socket.onmessage = function (m) {
                 let reader = new FileReader();
                 reader.onload = function(){
+                    console.log(reader.result);
                     term.write(reader.result);
                 };
                 reader.readAsText(m.data);
