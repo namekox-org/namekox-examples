@@ -1,4 +1,4 @@
-namekox_xmlrpc
-namekox_context
-namekox_webserver
-namekox_zookeeper
+namekox-xmlrpc
+namekox-context
+namekox-webserver
+namekox-zookeeper
