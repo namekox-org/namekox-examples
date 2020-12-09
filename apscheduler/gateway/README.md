@@ -4,6 +4,9 @@
 WEBSERVER:
   host: 0.0.0.0
   port: 80
+ZOOKEEPER:
+  gateway:
+    hosts: 127.0.0.1:2181
 ```
 > namekox run facade
 ```shell script
