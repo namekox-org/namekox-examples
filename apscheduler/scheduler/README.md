@@ -28,7 +28,7 @@ XMLRPC:
   host: 0.0.0.0
   port: 5000
 ZOOKEEPER:
-  ping:
+  scheduler:
     hosts: 127.0.0.1:2181
 COMMAND:
   - namekox_sqlalchemy.cli.subcmd.migration:Alembic
