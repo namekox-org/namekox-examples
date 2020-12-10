@@ -5,6 +5,7 @@
 
 from namekox_xmlrpc.core.client import ServerProxy
 from namekox_xmlrpc.core.messaging import gen_message_headers
+from namekox_xmlrpc.constants import DEFAULT_XMLRPC_TB_CALL_MODE, DEFAULT_XMLRPC_YB_CALL_MODE
 
 
 class XMLRpcProxy(object):
@@ -32,14 +33,17 @@ class XMLRpcService(object):
 
 class XMLRpcMethod(object):
     def __init__(self, proxy, target_service, target_method):
-        self.proxy = proxy
-        self.target_service = target_service
         self.target_method = target_method
+        server = proxy.service.zk.allotter.get(target_service)
+        uri = '{}://{}:{}'.format(proxy.protocol, server['address'], server['port'])
+        transport_timeout = proxy.timeout
+        transport_headers = gen_message_headers(proxy.service.ctx.data)
+        self.target_service = ServerProxy(uri, transport_timeout=transport_timeout, transport_headers=transport_headers)
+
+    def call_async(self, *args, **kwargs):
+        call_mode = DEFAULT_XMLRPC_YB_CALL_MODE
+        return self.target_service.__getattr__(self.target_method)(call_mode, *args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        server = self.proxy.service.zk.allotter.get(self.target_service)
-        uri = '{}://{}:{}'.format(self.proxy.protocol, server['address'], server['port'])
-        transport_timeout = self.proxy.timeout
-        transport_headers = gen_message_headers(self.proxy.service.ctx.data)
-        target = ServerProxy(uri, transport_timeout=transport_timeout, transport_headers=transport_headers)
-        return target.__getattr__(self.target_method)(*args, **kwargs)
+        call_mode = DEFAULT_XMLRPC_TB_CALL_MODE
+        return self.target_service.__getattr__(self.target_method)(call_mode, *args, **kwargs)
