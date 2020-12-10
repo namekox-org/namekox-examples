@@ -5,7 +5,7 @@
 
 from namekox_xmlrpc.core.client import ServerProxy
 from namekox_xmlrpc.core.messaging import gen_message_headers
-from namekox_xmlrpc.constants import DEFAULT_XMLRPC_TB_CALL_MODE, DEFAULT_XMLRPC_YB_CALL_MODE
+from namekox_xmlrpc.constants import DEFAULT_XMLRPC_CALL_MODE_ID, DEFAULT_XMLRPC_TB_CALL_MODE, DEFAULT_XMLRPC_YB_CALL_MODE
 
 
 class XMLRpcProxy(object):
@@ -41,9 +41,9 @@ class XMLRpcMethod(object):
         self.target_service = ServerProxy(uri, transport_timeout=transport_timeout, transport_headers=transport_headers)
 
     def call_async(self, *args, **kwargs):
-        call_mode = DEFAULT_XMLRPC_YB_CALL_MODE
-        return self.target_service.__getattr__(self.target_method)(call_mode, *args, **kwargs)
+        kwargs.setdefault(DEFAULT_XMLRPC_CALL_MODE_ID, DEFAULT_XMLRPC_YB_CALL_MODE)
+        return self.target_service.__getattr__(self.target_method)(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        call_mode = DEFAULT_XMLRPC_TB_CALL_MODE
-        return self.target_service.__getattr__(self.target_method)(call_mode, *args, **kwargs)
+        kwargs.setdefault(DEFAULT_XMLRPC_CALL_MODE_ID, DEFAULT_XMLRPC_TB_CALL_MODE)
+        return self.target_service.__getattr__(self.target_method)(*args, **kwargs)
