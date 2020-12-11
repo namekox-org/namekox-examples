@@ -3,7 +3,6 @@
 # author: forcemain@163.com
 
 
-from namekox_core.core.friendly import AsLazyProperty
 from namekox_webserver.core.request import JsonRequest
 from namekox_webserver.constants import DEFAULT_WEBSERVER_H_PREFIX
 
@@ -33,27 +32,21 @@ class BaseDispatcher(object):
         self.service = service
         self.request = request
 
-    @AsLazyProperty
     def req_json(self):
         return self.request.get_json()
 
-    @AsLazyProperty
     def req_user(self):
         return
 
-    @AsLazyProperty
     def req_path(self):
         return self.req_json['path']
 
-    @AsLazyProperty
     def req_args(self):
         return self.req_json['args']
 
-    @AsLazyProperty
     def req_data(self):
         return self.req_json['data']
 
-    @AsLazyProperty
     def req_time(self):
         return self.req_json['time']
 
@@ -105,10 +98,10 @@ class XMLRPCDispatcher(BaseDispatcher):
         return True
 
     def post(self, request, *args, **kwargs):
-        service_name, method_name = self.req_path.strip('/').split('/', 1)
+        service_name, method_name = self.req_path().strip('/').split('/', 1)
         service = getattr(XMLRpcProxy(self.service, timeout=self.req_time), service_name)
         reqfunc = getattr(service, method_name)
-        return reqfunc(*self.req_args, **self.req_data)
+        return reqfunc(*self.req_args(), **self.req_data())
 
 
 TRANSPORTS_KEY = [XMLRPCDispatcher.name]
