@@ -111,7 +111,7 @@ class XMLRPCDispatcher(BaseDispatcher):
 
     def post(self, request, *args, **kwargs):
         service_name, method_name = self.req_path().strip('/').split('/', 1)
-        service = getattr(XMLRpcProxy(self.service, timeout=self.req_time), service_name)
+        service = getattr(XMLRpcProxy(self.service, timeout=self.req_time()), service_name)
         reqfunc = getattr(service, method_name)
         return reqfunc(*self.req_args(), **self.req_data())
 
