@@ -9,12 +9,14 @@ import sqlalchemy as sa
 from namekox_sqlalchemy.core.condition import DynamicCondition
 
 
+from .base import BaseHelper
 from .. import models, schema
 
 
-class LogHelper(object):
+class LogHelper(BaseHelper):
     def __init__(self, service):
         self.service = service
+        super(LogHelper, self).__init__(service)
 
     def search(self, conditions=None, offset=None, limit=None):
         conditions = {} if conditions is None else conditions
