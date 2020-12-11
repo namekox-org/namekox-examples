@@ -91,6 +91,7 @@ class BaseDispatcher(object):
         request = JsonRequest(self.request)
         request.is_valid(raise_exception=True)
         schema.RequestCreateSchema(strict=True).load(self.req_json).data
+        self.request = request
         self.has_perm(request)
         name = request.method.lower()
         func = getattr(self, name)
