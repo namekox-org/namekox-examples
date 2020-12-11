@@ -3,8 +3,12 @@
 # author: forcemain@163.com
 
 
+import socket
+
+
 from namekox_webserver.core.request import JsonRequest
 from namekox_webserver.constants import DEFAULT_WEBSERVER_H_PREFIX
+
 
 from .. import schema, exceptions
 from .xmlrpc.proxy import XMLRpcProxy
@@ -42,13 +46,14 @@ class BaseDispatcher(object):
         return self.req_json()['path']
 
     def req_args(self):
-        return self.req_json()['args']
+        return self.req_json().get('args', [])
 
     def req_data(self):
-        return self.req_json()['data']
+        return self.req_json().get('data', {})
 
     def req_time(self):
-        return self.req_json()['time']
+        timeout = self.req_json().get('time', socket._GLOBAL_DEFAULT_TIMEOUT)
+        return timeout or socket._GLOBAL_DEFAULT_TIMEOUT
 
     def get(self, request, *args, **kwargs):
         raise exceptions.MethodNotAllowed(self.name)
