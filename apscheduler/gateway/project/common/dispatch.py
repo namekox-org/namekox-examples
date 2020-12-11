@@ -3,6 +3,7 @@
 # author: forcemain@163.com
 
 
+import json
 import socket
 
 
@@ -36,24 +37,8 @@ class BaseDispatcher(object):
         self.service = service
         self.request = request
 
-    def req_json(self):
-        return self.request.get_json()
-
-    def req_user(self):
-        return
-
-    def req_path(self):
-        return self.req_json()['path']
-
-    def req_args(self):
-        return self.req_json().get('args', [])
-
-    def req_data(self):
-        return self.req_json().get('data', {})
-
-    def req_time(self):
-        timeout = self.req_json().get('time', socket._GLOBAL_DEFAULT_TIMEOUT)
-        return timeout or socket._GLOBAL_DEFAULT_TIMEOUT
+    def dispatch(self, *args, **kwargs):
+        raise NotImplementedError
 
     def get(self, request, *args, **kwargs):
         raise exceptions.MethodNotAllowed(self.name)
@@ -85,6 +70,37 @@ class BaseDispatcher(object):
     def has_perm(self, request):
         raise exceptions.PermissionDenied(self.name)
 
+
+class XMLRPCDispatcher(BaseDispatcher):
+    name = 'xmlrpc'
+
+    def req_json(self):
+        return self.request.get_json()
+
+    def req_user(self):
+        return
+
+    def req_path(self):
+        return self.req_json()['path']
+
+    def req_args(self):
+        data = self.req_json().get('args', '{}')
+        return json.loads(data)
+
+    def req_data(self):
+        data = self.req_json().get('data', '{}')
+        return json.loads(data)
+
+    def req_time(self):
+        timeout = self.req_json().get('time', socket._GLOBAL_DEFAULT_TIMEOUT)
+        return timeout or socket._GLOBAL_DEFAULT_TIMEOUT
+
+    def is_login(self, request):
+        return True
+
+    def has_perm(self, request):
+        return True
+
     def dispatch(self, *args, **kwargs):
         request = JsonRequest(self.request)
         request.is_valid(raise_exception=True)
@@ -96,13 +112,6 @@ class BaseDispatcher(object):
         name = request.method.lower()
         func = getattr(self, name)
         return func(request, *args, **kwargs)
-
-
-class XMLRPCDispatcher(BaseDispatcher):
-    name = 'xmlrpc'
-
-    def has_perm(self, request):
-        return True
 
     def post(self, request, *args, **kwargs):
         service_name, method_name = self.req_path().strip('/').split('/', 1)
