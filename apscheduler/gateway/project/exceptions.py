@@ -5,3 +5,11 @@
 
 class MethodNotAllowed(Exception):
     pass
+
+
+class PermissionDenied(Exception):
+    pass
+
+
+class AuthenticateFailed(Exception):
+    pass
