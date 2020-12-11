@@ -39,16 +39,16 @@ class BaseDispatcher(object):
         return
 
     def req_path(self):
-        return self.req_json['path']
+        return self.req_json()['path']
 
     def req_args(self):
-        return self.req_json['args']
+        return self.req_json()['args']
 
     def req_data(self):
-        return self.req_json['data']
+        return self.req_json()['data']
 
     def req_time(self):
-        return self.req_json['time']
+        return self.req_json()['time']
 
     def get(self, request, *args, **kwargs):
         raise exceptions.MethodNotAllowed(self.name)
