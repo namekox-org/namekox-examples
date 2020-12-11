@@ -4,7 +4,6 @@
 
 
 import json
-import socket
 
 
 from namekox_webserver.core.request import JsonRequest
@@ -75,7 +74,8 @@ class XMLRPCDispatcher(BaseDispatcher):
     name = 'xmlrpc'
 
     def req_json(self):
-        return self.request.get_json()
+        data = self.request.get_json()
+        return schema.RequestCreateSchema(strict=True).load(data).data
 
     def req_user(self):
         return
@@ -84,16 +84,15 @@ class XMLRPCDispatcher(BaseDispatcher):
         return self.req_json()['path']
 
     def req_args(self):
-        data = self.req_json().get('args', '{}')
+        data = self.req_json()['args']
         return json.loads(data)
 
     def req_data(self):
-        data = self.req_json().get('data', '{}')
+        data = self.req_json()['data']
         return json.loads(data)
 
     def req_time(self):
-        timeout = self.req_json().get('time', socket._GLOBAL_DEFAULT_TIMEOUT)
-        return timeout or socket._GLOBAL_DEFAULT_TIMEOUT
+        return self.req_json()['time']
 
     def is_login(self, request):
         return True
