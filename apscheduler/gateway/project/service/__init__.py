@@ -27,7 +27,7 @@ class Gateway(object):
     )
 
     # as gateway service
-    @app.api('/api/dispatch/', methods=constants.GATEWAY_DISPATCH_METHODS)
+    @app.api('/api/dispatch/', methods=constants.DEFAULT_DISPATCH_METHODS)
     def dispatch(self, request):
         """
         http://127.0.0.1/api/dispatch/
