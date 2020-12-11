@@ -40,5 +40,4 @@ class Gateway(object):
             "data": "{}"
         }
         """
-        dispatcher = Dispatcher(self)(request)
-        return dispatcher.dispatch()
+        return Dispatcher(self)(request).dispatch()
