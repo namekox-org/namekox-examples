@@ -83,7 +83,9 @@ class BaseDispatcher(object):
     def dispatch(self, *args, **kwargs):
         request = JsonRequest(self.request)
         request.is_valid(raise_exception=True)
-        schema.RequestCreateSchema(strict=True).load(self.req_json).data
+        self.request = request
+        reqdata = self.req_json()
+        schema.RequestCreateSchema(strict=True).load(reqdata).data
         self.request = request
         self.has_perm(request)
         name = request.method.lower()
