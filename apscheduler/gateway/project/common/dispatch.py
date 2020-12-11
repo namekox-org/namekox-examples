@@ -85,7 +85,7 @@ class BaseDispatcher(object):
         request.is_valid(raise_exception=True)
         self.request = request
         reqdata = self.req_json()
-        schema.RequestCreateSchema(strict=True).load(reqdata).data
+        schema.RequestCreateSchema(strict=True).load(reqdata)
         self.request = request
         self.has_perm(request)
         name = request.method.lower()
