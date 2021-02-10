@@ -1,5 +1,0 @@
-PyMySQL>=0.10.1
-namekox-xmlrpc
-namekox-context
-namekox-zookeeper
-namekox-sqlalchemy
