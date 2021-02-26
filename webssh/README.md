@@ -15,6 +15,7 @@ WEBSOCKET:
 ```
 
 > namekox run server
+
 > http://127.0.0.1/?host=`host`&port=`port`&user=`user`&pass=`pass`
 ![webssh](demo.png)
 ```shell script
