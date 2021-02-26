@@ -4,19 +4,19 @@
 
 from __future__ import unicode_literals
 
-import os
 
-
-from werkzeug import Response
 from logging import getLogger
-from handler import WebSocketHandler
-from namekox_webserver.core.entrypoints.app.handler import WebServerHandler
+from werkzeug.utils import redirect
+from namekox_webserver.core.entrypoints.app import WebServerHandler
+
+
+from .common.handler import WebSocketHandler
 
 
 logger = getLogger(__name__)
 
-
-app = type(__name__, (object,), {'web': WebServerHandler.decorator, 'wss': WebSocketHandler.decorator})
+web = WebServerHandler.decorator
+wss = WebSocketHandler.decorator
 
 
 class WebSSH(object):
@@ -24,13 +24,13 @@ class WebSSH(object):
 
     storage = {}
 
-    @app.web('/', methods=['GET'])
-    def index(self, request, **kwargs):
-        curpath = os.path.dirname(__file__)
-        fileobj = open(os.path.join(curpath, 'index.html'))
-        return Response(fileobj.read(), mimetype='text/html')
+    @web('/', methods=['GET'])
+    def index(self, request):
+        qstr = request.query_string
+        page = '/frontend/index.html'
+        return redirect(page + '?' + qstr)
 
-    @app.wss('/', methods=['GET'])
+    @wss('/', methods=['GET'])
     def monitor(self, request, sock_id, data):
         if data != '\n':
             sock_id not in self.storage and self.storage.setdefault(sock_id, [])

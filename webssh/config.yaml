@@ -1,8 +1,8 @@
 WEBSERVER:
+  middlewares:
+    - project.middles.static_files:StaticFilesMiddleware
   host: 0.0.0.0
   port: 80
-  middlewares:
-    - middle:StaticServerMiddleware
 WEBSOCKET:
   host: 0.0.0.0
   port: 8000

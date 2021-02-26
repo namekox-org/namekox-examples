@@ -14,12 +14,12 @@ from namekox_core.core.friendly import ignore_exception, AsLazyProperty
 class MiniSSH(object):
     def __init__(self, options=None):
         self.client = None
-        self.received = True
+        self._running = True
         options = options or {}
-        self.username = options.get('user', 'root')
-        self.password = options.get('pass', 'root')
         self.hostport = options.get('port', 22)
         self.hostport = int(self.hostport)
+        self.username = options.get('user', 'root')
+        self.password = options.get('pass', 'root')
         self.hostname = options.get('host', '127.0.0.1')
 
     @AsLazyProperty
@@ -45,20 +45,20 @@ class MiniSSH(object):
             **kwargs
         )
 
+    def forward(self, to, chunk=4096):
+        self.channel.invoke_shell()
+        while self._running:
+            data = self.channel.recv(chunk)
+            if not data:
+                break
+            to.send(data)
+
     def get_pty(self, **kwargs):
         self.channel.get_pty(**kwargs)
 
     def set_pty(self, **kwargs):
         self.channel.resize_pty(**kwargs)
 
-    def forward(self, to, chunk=4096):
-        self.channel.invoke_shell()
-        while self.received:
-            data = self.channel.recv(chunk)
-            if not data:
-                break
-            to.send(data)
-
     def close(self):
-        self.received = False
-        ignore_exception(self.client.close)
+        self._running = False
+        ignore_exception(self.client.close)()
